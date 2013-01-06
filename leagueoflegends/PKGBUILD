@@ -6,6 +6,17 @@ pkgdesc="A game by Riot"
 arch=('i686' 'x86_64')
 url="http://leagueoflegends.com/"
 license=('custom')
+
+# Ugly hack for AUR parsing, this function must come before the 
+# depends, makedepends, etc. section.
+strip_multilib() {
+  # Strip lib32 etc. on i686
+  depends=(${depends[@]/*32-*/})
+  makedepends=(${makedepends[@]/*32-*/})
+  makedepends=(${makedepends[@]/*-multilib*/})
+  optdepends=(${optdepends[@]/*32-*/})
+}
+
 depends=(
   fontconfig      lib32-fontconfig
   libxcursor      lib32-libxcursor
@@ -38,13 +49,10 @@ makedepends=(autoconf ncurses bison perl fontforge flex prelink
   mesa            lib32-mesa
   samba
 )
-if [[ $CARCH == i686 ]]; then
-  # Strip lib32 etc. on i686
-  depends=(${depends[@]/*32-*/})
-  makedepends=(${makedepends[@]/*32-*/})
-  makedepends=(${makedepends[@]/*-multilib*/})
-  optdepends=(${optdepends[@]/*32-*/})
+if [[ $CARCH == x86_64 ]]; then
+  strip_multilib
 fi
+
 options=(!libtool)
 install=leagueoflegends.install
 source=("http://sourceforge.net/projects/wine/files/Source/wine-1.5.18.tar.bz2"
